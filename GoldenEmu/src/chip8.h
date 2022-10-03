@@ -15,6 +15,8 @@ public:
 	bool IsRunning() { return m_Running; }
 	bool ShouldDraw() { return m_ShouldDraw; }
 
+	bool IsPixelActive(int x, int y);
+
 	// Chip8 has 4K memory
 	unsigned char m_Memory[4096];
 private:
@@ -34,7 +36,7 @@ private:
 	unsigned short m_ProgramCounter;
 
 	// The screen resolution is 64 * 32
-	unsigned char m_Display[64 * 32];
+	unsigned char m_Display[64][32];
 
 	// Timers that count at 60Hz. When they are set above 0 they will count down till 0
 	// When the sound timer reachers 0 the system buzzer will sound

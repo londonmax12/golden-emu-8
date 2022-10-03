@@ -53,22 +53,62 @@ void Chip8Core::Cycle()
 	m_Opcode = m_Memory[m_ProgramCounter] << 8u | m_Memory[m_ProgramCounter + 1];
 	m_ProgramCounter += 2;
 
-	printf("Running opcode: 0x%X\n", m_Opcode & 0xF000);
-
 	int w = (m_Opcode >> 12) & 0xF;
-	int x = (m_Opcode >> 8) & 0xF;
-	int y = (m_Opcode >> 4) & 0xF;
+	int x = (m_Opcode & 0x0F00) >> 8;
+	int y = (m_Opcode & 0x00F0) >> 4;
 	int z = m_Opcode & 0xF;
-	int nn = m_Opcode & 0xFF;
-	int nnn = m_Index = m_Opcode & 0xFFF;
+	int nn = m_Opcode & 0x00FF;
+	int nnn = m_Opcode & 0x0FFF;
 
+	m_ShouldDraw = false;
+	 
 	// Get the first 4 bytes of opcode to figure out what it is
 	switch (m_Opcode & 0xF000)
 	{
-	case 0xA000: // ANNN: Sets index to the address NNN
+	case 0xA000: // Sets index to the address NNN
 	{
-		m_Index = nnn;
-		m_ProgramCounter += 2;
+		m_Index = m_Opcode & 0x0FFF;
+		break;
+	}
+	case 0xD000: // Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels. Each row of 8 pixels is read as bit-coded starting from memory location I; 
+		//I value does not change after the execution of this instruction. VF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn, and to 0 if that does not happen.
+	{
+		// Get height from n
+		int height = m_Opcode & 0x000F;
+		// Width: vx, Height: vy
+		int xCoord = m_Reg[x];
+		int yCoord = m_Reg[y];
+
+		int ands[8] = { 128, 64, 32, 16, 8, 4, 2, 1 };
+
+		// Set carry flag to 0
+		m_Reg[15] = 0;
+
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < 8; j++) {
+				// Allows sprite to wrap around screen
+				if (xCoord + j == 64) {
+					xCoord = -j;
+				}
+				if (yCoord + i == 32) {
+					yCoord = -i;
+				}
+
+				// Set carry flag to 1 if a sprite changes from set to unset
+				if (m_Display[xCoord + j][yCoord + i] == 1 &&
+					((m_Memory[m_Index + i] & ands[j]) >> (8 - j - 1)) == 1) {
+					m_Reg[15] = 1;
+				}
+
+				// Bitwise operations decode each bit of sprite and XOR with the current pixel on screen
+				m_Display[xCoord + j][yCoord + i] = m_Display[xCoord + j][yCoord + i] ^
+					((m_Memory[m_Index + i] & ands[j]) >> (8 - j - 1));
+			}
+			xCoord = m_Reg[x];
+			yCoord = m_Reg[y];
+		}
+		m_ShouldDraw = true;
+
 		break;
 	}
 	case 0x0000:
@@ -88,13 +128,21 @@ void Chip8Core::Cycle()
 			printf ("Unknown opcode [0x0000]: 0x%X\n", m_Opcode);
 		}
 	}
+	case 0x1000: // Jump to nnn address
+	{
+		m_ProgramCounter = nnn;
+		break;
+	}
 	case 0x2000: // Call subroutine at nnn. 
 	{
 		m_Stack[m_StackPointer++] = m_ProgramCounter;
 		m_ProgramCounter = nnn;
 		break;
 	}
-	case 0x6000: // set x to nn
+	case 0x4000:
+		if (m_Reg[x] == nn)
+			m_ProgramCounter += 2;
+	case 0x6000: // Set x to nn
 	{
 		m_Reg[x] = nn;
 		break;
@@ -168,4 +216,9 @@ void Chip8Core::LoadProgram(const char* program)
 		// Close file
 		fclose(file);
 	}
+}
+
+bool Chip8Core::IsPixelActive(int x, int y)
+{
+	return m_Display[x][y];
 }
