@@ -1,4 +1,2 @@
-﻿  application.cpp
-C:\Users\London\Desktop\Projects\C++\golden-emu-8\GoldenEmu\src\application.cpp(87,31): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-C:\Users\London\Desktop\Projects\C++\golden-emu-8\GoldenEmu\src\application.cpp(89,35): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+﻿  chip8.cpp
   GoldenEmu.vcxproj -> C:\Users\London\Desktop\Projects\C++\golden-emu-8\x64\Debug\GoldenEmu.exe

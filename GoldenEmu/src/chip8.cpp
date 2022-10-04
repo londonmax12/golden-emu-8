@@ -92,6 +92,7 @@ void Chip8Core::Cycle()
 		default:
 			printf ("Unknown opcode [0x0000]: 0x%X\n", m_Opcode & 0x000F);
 		}
+		break;
 	}
 	case 0x1000: // Jump to nnn address
 	{
@@ -210,11 +211,14 @@ void Chip8Core::Cycle()
 			printf("Unknown opcode [0x8000]: 0x%X\n", m_Opcode & 0x000F);
 			break;
 		}
+		break;
 	}
 	case 0x9000: // Skips next instruction if x does not equal y
+	{
 		if (m_Reg[x] != m_Reg[y])
 			m_ProgramCounter += 2;
 		break;
+	}
 	case 0xA000: // Sets index to the address NNN
 	{
 		m_Index = nnn;
@@ -277,12 +281,16 @@ void Chip8Core::Cycle()
 		{
 		case 0x009E: // Skip next instruction if key in x is pressed
 		{
-			// TODO
+			int key = m_Reg[x];
+			if (m_Key[key])
+				m_ProgramCounter += 2;
 			break;
 		}
 		case 0x00A1: // Skip next instruction if key in x not pressed
 		{
-			// TODO
+			int key = m_Reg[x];
+			if (!m_Key[key])
+				m_ProgramCounter += 2;
 			break;
 		}
 		default:
@@ -298,8 +306,19 @@ void Chip8Core::Cycle()
 		{
 		case 0x000A: // Await keypress then store in x
 		{ 
-			m_ProgramCounter -= 2;
-			// TODO: Key press
+			bool keyDown = false;
+
+			for (int i = 0; i < 16; i++) {
+				if (m_Key[i]) {
+					keyDown = true;
+					m_Reg[x] = i;
+					break;
+				}
+			}
+
+			if (!keyDown)
+				m_ProgramCounter -= 2;
+
 			break;
 		}
 		case 0x0007: // Set x to the value of the delay timer 
@@ -378,8 +397,9 @@ void Chip8Core::Cycle()
 	}
 }
 
-void Chip8Core::SetKeys()
+void Chip8Core::SetKeys(unsigned char keys[16])
 {
+	memcpy(m_Key, keys, 16);
 }
 
 void Chip8Core::LoadProgram(const char* program)

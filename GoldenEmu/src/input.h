@@ -1,5 +1,5 @@
 #pragma once
-
+#include "SDL.h"
 
 /*
 Chip-8
@@ -15,10 +15,12 @@ Keypad       Keyboard
 +-+-+-+-+    +-+-+-+-+
  */
 
-
 class Input {
 public:
+	static bool IsKeyDown(SDL_Scancode key);
 	static void Update();
+
+	static unsigned char* GetKeys() { return m_Keypad; };
 private:
-	static unsigned int m_Keys[16];
+	inline static unsigned char m_Keypad[16];
 };

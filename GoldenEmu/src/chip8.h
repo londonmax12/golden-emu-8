@@ -7,7 +7,7 @@ public:
 	bool Initialize();
 
 	void Cycle();
-	void SetKeys();
+	void SetKeys(unsigned char keys[16]);
 
 	void LoadProgram(const char* program);
 

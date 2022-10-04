@@ -34,7 +34,7 @@ void debugGraphics() {
 void main() {
 	app.Initialize();
 
-	app.GetEmulatedCPU()->LoadProgram("test_opcode.ch8");
+	app.LoadChipProgram("test_opcode.ch8");
 
 	while (!app.WantClose())
 	{

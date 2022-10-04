@@ -1,6 +1,7 @@
 #pragma once
 
 #include "chip8.h"
+#include "input.h"
 
 #include "SDL.h"
 
@@ -13,6 +14,8 @@ public:
 
 	// Incase of window close or unrecoverable error
 	bool WantClose() { return m_ShouldClose; }
+
+	bool LoadChipProgram(const char* path);
 
 	Chip8Core* GetEmulatedCPU() { return &m_ChipCpu; }
 

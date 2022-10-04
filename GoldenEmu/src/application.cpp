@@ -11,8 +11,8 @@ bool Application::Initialize()
         "Golden Emu 8",                  // window title
         SDL_WINDOWPOS_UNDEFINED,           // initial x position
         SDL_WINDOWPOS_UNDEFINED,           // initial y position
-        640,                               // width, in pixels
-        480,                               // height, in pixels
+        1200,                               // width, in pixels
+        600,                               // height, in pixels
         SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE                // flags - see below
     );
 
@@ -65,6 +65,8 @@ void Application::Update()
     // Emulate 1 CPU cycle
     m_ChipCpu.Cycle();
 
+    Input::Update();
+
     bool forcedRedraw = false;
     if (m_ForceRedraw)
     {
@@ -110,7 +112,16 @@ void Application::Update()
         m_ChipCpu.ForceRedraw(false);
         m_ForceRedraw = false;
     }
-    m_ChipCpu.SetKeys();
+    m_ChipCpu.SetKeys(Input::GetKeys());
+}
+
+bool Application::LoadChipProgram(const char* path)
+{
+    char buffer[256];
+    sprintf(buffer, "Golden Emu 8 (%s)", path);
+    SDL_SetWindowTitle(m_Window, buffer);
+    m_ChipCpu.LoadProgram(path);
+    return true;
 }
 
 Application::~Application()
