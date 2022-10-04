@@ -4,6 +4,7 @@
 #include "input.h"
 
 #include "SDL.h"
+#include "SDL_mixer.h"
 
 class Application {
 public:
@@ -32,6 +33,9 @@ private:
 	
 	// SDL event
 	SDL_Event m_Event;
+
+	// Beep sound
+	Mix_Chunk* m_BeepSfx;
 
 	Chip8Core m_ChipCpu;
 };

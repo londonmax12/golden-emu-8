@@ -4,7 +4,13 @@
 bool Application::Initialize()
 {
     // Initalize SDL
-    SDL_Init(SDL_INIT_VIDEO);
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
+
+    // Init audio device
+    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
+
+    // Load audio
+    m_BeepSfx = Mix_LoadWAV("assets/audio/beep.wav");
 
     // Create window with parameters
     m_Window = SDL_CreateWindow(
@@ -103,6 +109,10 @@ void Application::Update()
             }
         }
 
+        if (m_ChipCpu.ShouldPlaySound()) {
+            m_ChipCpu.PlaySound();
+            Mix_PlayChannel(-1, m_BeepSfx, 0);
+        }
 
         // Udate screen
         SDL_RenderPresent(m_Renderer);
@@ -129,6 +139,9 @@ Application::~Application()
     // Clean up SDL
     SDL_DestroyRenderer(m_Renderer);
     SDL_DestroyWindow(m_Window);
+
+    Mix_FreeChunk(m_BeepSfx);
+    Mix_CloseAudio();
 
     SDL_Quit();
 }

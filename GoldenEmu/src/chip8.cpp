@@ -392,7 +392,7 @@ void Chip8Core::Cycle()
 	if (m_SoundTimer > 0)
 	{
 		if (m_SoundTimer == 1)
-			printf("Sound timer triggered\n");
+			m_Sound = true;
 		--m_SoundTimer;
 	}
 }

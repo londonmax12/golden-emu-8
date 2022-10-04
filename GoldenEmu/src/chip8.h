@@ -12,6 +12,9 @@ public:
 	void LoadProgram(const char* program);
 
 	bool ShouldDraw() { return m_ShouldDraw; }
+	bool ShouldPlaySound() { return m_Sound; }
+	void PlaySound() { m_Sound = false; }
+
 	bool IsPixelActive(int x, int y);
 
 	void ForceRedraw(bool shouldDraw) {
@@ -22,6 +25,7 @@ public:
 	// Chip8 has 4K memory
 	unsigned char m_Memory[4096];
 private:
+	bool m_Sound = false;
 	bool m_ShouldDraw = false;
 	bool m_ForceDraw = false;
 	bool m_Updated = false;

@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <Windows.h>
+#include <chrono>
+#include <thread>
 
 #include "application.h"
 
@@ -34,11 +36,17 @@ void debugGraphics() {
 void main() {
 	app.Initialize();
 
-	app.LoadChipProgram("test_opcode.ch8");
+	app.LoadChipProgram("Breakout.ch8");
+
+	using clock = std::chrono::steady_clock;
+
+	auto nextFrame = clock::now();
 
 	while (!app.WantClose())
 	{
+		nextFrame += std::chrono::milliseconds(1000 / 500);
 		app.Update();
+		std::this_thread::sleep_until(nextFrame);
 	}
 
 }
