@@ -355,7 +355,7 @@ void Chip8Core::Cycle()
 			break;
 		}
 		default:
-			printf("Unknown opcode [0xF000]: 0x%X\n", m_Opcode & 0x00FF);
+			//printf("Unknown opcode [0xF000]: 0x%X\n", m_Opcode & 0x00FF);
 			break;
 		}
 		break;

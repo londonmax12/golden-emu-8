@@ -2,8 +2,6 @@
 #define _CRT_SECURE_NO_WARNINGS 1 
 #define _WINSOCK_DEPRECATED_NO_WARNINGS 1 
 
-#include <unordered_map>
-
 class Chip8Core {
 public:
 	bool Initialize();
@@ -13,16 +11,20 @@ public:
 
 	void LoadProgram(const char* program);
 
-	bool IsRunning() { return m_Running; }
-
 	bool ShouldDraw() { return m_ShouldDraw; }
 	bool IsPixelActive(int x, int y);
+
+	void ForceRedraw(bool shouldDraw) {
+		m_ShouldDraw = shouldDraw;
+		m_ForceDraw = shouldDraw;
+	}
 
 	// Chip8 has 4K memory
 	unsigned char m_Memory[4096];
 private:
-	bool m_Running = false;
 	bool m_ShouldDraw = false;
+	bool m_ForceDraw = false;
+	bool m_Updated = false;
 
 	// Current opcode
 	unsigned short m_Opcode;
@@ -38,6 +40,8 @@ private:
 
 	// The screen resolution is 64 * 32
 	unsigned char m_Display[64][32];
+	// Backup display for force redraws
+	unsigned char m_DisplayBackup[64][32];
 
 	// Timers that count at 60Hz. When they are set above 0 they will count down till 0
 	// When the sound timer reachers 0 the system buzzer will sound

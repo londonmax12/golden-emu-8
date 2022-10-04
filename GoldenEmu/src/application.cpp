@@ -1,38 +1,123 @@
 #include "application.h"
 #include <iostream>
 
-void Application::Init()
+bool Application::Initialize()
 {
+    // Initalize SDL
+    SDL_Init(SDL_INIT_VIDEO);
 
-    SDL_Window* window;                    // Declare a pointer
-
-    SDL_Init(SDL_INIT_VIDEO);              // Initialize SDL2
-
-    // Create an application window with the following settings:
-    window = SDL_CreateWindow(
-        "An SDL2 window",                  // window title
+    // Create window with parameters
+    m_Window = SDL_CreateWindow(
+        "Golden Emu 8",                  // window title
         SDL_WINDOWPOS_UNDEFINED,           // initial x position
         SDL_WINDOWPOS_UNDEFINED,           // initial y position
         640,                               // width, in pixels
         480,                               // height, in pixels
-        SDL_WINDOW_OPENGL                  // flags - see below
+        SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE                // flags - see below
     );
 
     // Check that the window was successfully created
-    if (window == NULL) {
-        // In the case that the window could not be made...
+    if (m_Window == NULL) {
         printf("Could not create window: %s\n", SDL_GetError());
-        return;
+        m_ShouldClose = true;
+        return false;
     }
 
-    // The window is open: could enter program loop here (see SDL_PollEvent())
+    // Create SDL renderer
+    m_Renderer = SDL_CreateRenderer(m_Window, -1, SDL_RENDERER_ACCELERATED);
 
-    SDL_Delay(3000);  // Pause execution for 3000 milliseconds, for example
+    // Check is renderer was created successfully
+    if (m_Renderer == NULL) {
+        printf("Could not create renderer: %s\n", SDL_GetError());
+        m_ShouldClose = true;
+        return false;
+    }
 
-    // Close and destroy the window
-    SDL_DestroyWindow(window);
+    m_ChipCpu.Initialize();
 
-    // Clean up
+    return true;
+}
+
+void Application::Update()
+{
+    // Poll events
+    while (SDL_PollEvent(&m_Event)) 
+    { 
+        switch (m_Event.type)
+        {
+        // Window close event
+        case SDL_QUIT:
+            m_ShouldClose = true;
+            break;
+        // Other window event
+        case SDL_WINDOWEVENT:
+            // On window resize
+            if (m_Event.window.event == SDL_WINDOWEVENT_RESIZED) {
+                // Force redraw
+                m_ForceRedraw = true;
+            }
+            break;
+
+        default:
+            break;
+        } 
+    } 
+    // Emulate 1 CPU cycle
+    m_ChipCpu.Cycle();
+
+    bool forcedRedraw = false;
+    if (m_ForceRedraw)
+    {
+        m_ChipCpu.ForceRedraw(true);
+    }
+
+    // Not every cycle should render
+    if (m_ChipCpu.ShouldDraw()) {
+        SDL_SetRenderDrawColor(m_Renderer, 0, 0, 0, 255);
+
+        // Clear screen
+        SDL_RenderClear(m_Renderer);
+
+        // Get window size
+        int w, h;
+        SDL_GetWindowSize(m_Window, &w, &h);
+
+        // Calculate the max pixel size to fit all content
+        int pixelSize = 0;
+        pixelSize = std::round(w / 64);
+        if (pixelSize * 32 > h)
+            pixelSize = std::round(h / 32);
+        // Render all active pixels
+        for (int x = 0; x < 64; x++) {
+            for (int y = 0; y < 32; y++) {
+                if (m_ChipCpu.IsPixelActive(x, y)) {
+                    // Initialize new rect
+                    SDL_Rect rect{ x * pixelSize, y * pixelSize, pixelSize, pixelSize };
+                    // Set rect draw colour
+                    SDL_SetRenderDrawColor(m_Renderer, 255, 255, 255, 255);
+                    // Render rect
+                    SDL_RenderFillRect(m_Renderer, &rect);
+                }
+            }
+        }
+
+
+        // Udate screen
+        SDL_RenderPresent(m_Renderer);
+    }
+
+    if (m_ForceRedraw) {
+        m_ChipCpu.ForceRedraw(false);
+        m_ForceRedraw = false;
+    }
+    m_ChipCpu.SetKeys();
+}
+
+Application::~Application()
+{
+    // Clean up SDL
+    SDL_DestroyRenderer(m_Renderer);
+    SDL_DestroyWindow(m_Window);
+
     SDL_Quit();
-    return;
 }
