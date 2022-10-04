@@ -1,3 +1,5 @@
-﻿  main.cpp
-C:\Users\London\Desktop\Projects\C++\golden-emu-8\GoldenEmu\src\main.cpp(32,13): warning C4326: return type of 'main' should be 'int' instead of 'void'
+﻿  application.cpp
+  main.cpp
+C:\Users\London\Desktop\Projects\C++\golden-emu-8\GoldenEmu\src\main.cpp(37,13): warning C4326: return type of 'main' should be 'int' instead of 'void'
+  Generating Code...
   GoldenEmu.vcxproj -> C:\Users\London\Desktop\Projects\C++\golden-emu-8\x64\Debug\GoldenEmu.exe

@@ -1,9 +1,14 @@
-﻿#include <iostream>
+﻿#define SDL_MAIN_HANDLED
+
+#include <iostream>
 #include <Windows.h>
 
 #include "chip8.h"
+#include "application.h"
 
 Chip8Core chipCpu;
+
+Application app;
 
 void debugGraphics() {
 	DWORD dw;
@@ -18,12 +23,12 @@ void debugGraphics() {
 			if (chipCpu.IsPixelActive(x, y)) {
 				pos.X = x;
 				pos.Y = y;
-				WriteConsoleOutputCharacterA(hStdOut, "X", 7, pos, &dw);
+				WriteConsoleOutputCharacter(hStdOut, L"█", 1, pos, &dw);
 			}
 			else {
 				pos.X = x;
 				pos.Y = y;
-				WriteConsoleOutputCharacterA(hStdOut, " ", 7, pos, &dw);
+				WriteConsoleOutputCharacterA(hStdOut, "-", 1, pos, &dw);
 			}
 		}
 	}
@@ -34,6 +39,7 @@ void main() {
 	// Setup graphics
 	// Setup input and callbacks
 
+	app.Init();
 
 	// Clear memory, registers and screen
 	chipCpu.Initialize();
@@ -48,10 +54,12 @@ void main() {
 		// Not every cycle should render
 		if (chipCpu.ShouldDraw()) {
 			debugGraphics();
+			
 			// TODO:
 			// Draw graphics
 		}
 
 		chipCpu.SetKeys();
 	}
+
 }

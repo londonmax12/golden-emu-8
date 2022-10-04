@@ -21,9 +21,21 @@
     <ClCompile Include="src\chip8.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\input.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\application.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\chip8.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\application.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

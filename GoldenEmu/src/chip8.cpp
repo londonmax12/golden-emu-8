@@ -53,7 +53,6 @@ void Chip8Core::Cycle()
 	m_Opcode = m_Memory[m_ProgramCounter] << 8u | m_Memory[m_ProgramCounter + 1];
 	m_ProgramCounter += 2;
 
-	int w = (m_Opcode >> 12) & 0xF;
 	int x = (m_Opcode & 0x0F00) >> 8;
 	int y = (m_Opcode & 0x00F0) >> 4;
 	int z = m_Opcode & 0xF;
@@ -62,12 +61,170 @@ void Chip8Core::Cycle()
 
 	m_ShouldDraw = false;
 	 
+	//std::printf("Opcode: 0x%X\n", m_Opcode & 0xF000);
+
 	// Get the first 4 bytes of opcode to figure out what it is
 	switch (m_Opcode & 0xF000)
 	{
+	case 0x0000:
+	{
+		// Opcodes share the same first 4 bytes so we add an additional switch statement
+		switch(m_Opcode & 0x000F)
+		{
+		case 0x0000: // Clears the screen
+			memset(m_Display, 0, static_cast<size_t>(64) * 32);
+			break;
+ 
+		case 0x000E: // Returns from subroutine  
+			if (!m_Stack[m_StackPointer])
+			{
+				printf("Nothing to return to from subroutine\n");
+				break;
+			}
+			m_ProgramCounter = m_Stack[m_StackPointer];
+			m_Stack[m_StackPointer] = 0;
+			m_StackPointer--;
+			break;
+ 
+		default:
+			printf ("Unknown opcode [0x0000]: 0x%X\n", m_Opcode & 0x000F);
+		}
+	}
+	case 0x1000: // Jump to nnn address
+	{
+		m_ProgramCounter = nnn;
+		break;
+	}
+	case 0x2000: // Call subroutine at nnn. 
+	{
+		m_StackPointer++;
+		m_Stack[m_StackPointer] = m_ProgramCounter;
+		m_ProgramCounter = nnn;
+		break;
+	}
+	case 0x3000: // Skips next instruction if equals nn
+	{
+		if (m_Reg[x] == nn)
+			m_ProgramCounter += 2;
+		break;
+	}
+	case 0x4000: // Skips next instruction if x does not equal nn
+	{
+		if (m_Reg[x] != nn)
+			m_ProgramCounter += 2;
+		break;
+	}
+	case 0x5000: // Skips next insturction if x equals y
+	{
+		if (m_Reg[x] == m_Reg[y])
+			m_ProgramCounter += 2;
+		break;
+	}
+	case 0x6000: // Set x to nn
+	{
+		m_Reg[x] = nn;
+		break;
+	}
+	case 0x7000: // Adds nn to x
+	{
+		m_Reg[x] = m_Reg[x] + nn;
+		break;
+	}
+	case 0x8000: 
+	{
+		switch (m_Opcode & 0x000F)
+		{
+		case 0x0000: // Set x to y
+		{
+			m_Reg[x] = m_Reg[y];
+			break;
+		}
+		case 0x0001: // Set x to x OR y
+		{
+			m_Reg[x] = m_Reg[x] | m_Reg[y];
+			break;
+		}
+		case 0x0002: // Set x to x AND y
+		{
+			m_Reg[x] = m_Reg[x] & m_Reg[y];
+			break;
+		}
+		case 0x0003: // Set x to x XOR y
+		{
+			m_Reg[x] = m_Reg[x] ^ m_Reg[y];
+			break;
+		}
+		case 0x0004: // Add xy to xv and set carry flag to 1 if overflow else 0
+		{
+			if (m_Reg[x] + m_Reg[y] > 255)
+				m_Reg[15] = 1;
+			else
+				m_Reg[15] = 0;
+
+			m_Reg[x] = m_Reg[x] + m_Reg[y];
+			break;
+		}
+		case 0x0005: // Subtract y from x, if borrow set carry flag to 0 else 1
+		{
+			if (m_Reg[x] < m_Reg[y])
+				m_Reg[15] = 0;
+			else
+				m_Reg[15] = 1;
+
+			m_Reg[x] = m_Reg[x] - m_Reg[y];
+			break;
+		}
+		case 0x0006: // Shift x right by one, store least significant bit in carry flag
+		{
+			if (m_Reg[x] % 2 == 0)
+				m_Reg[15] = 0;
+			else
+				m_Reg[15] = 1;
+
+			m_Reg[x] = m_Reg[x] >> 1;
+			break;
+		}
+		case 0x0007: // Set x to y minus x, if borrow set carry flag to 0 else 1
+		{
+			if (m_Reg[y] < m_Reg[x])
+				m_Reg[15] = 0;
+			else
+				m_Reg[15] = 0;
+			m_Reg[x] = m_Reg[y] - m_Reg[x];
+			break;
+		}
+		case 0x000E: // Shift x left by one, store least significant bit in carry flag
+		{
+			if (m_Reg[x] < 128)
+				m_Reg[15] = 0;
+			else
+				m_Reg[15] = 1;
+
+			m_Reg[x] = m_Reg[x] << 1;
+			break;
+		}
+		default:
+			printf("Unknown opcode [0x8000]: 0x%X\n", m_Opcode & 0x000F);
+			break;
+		}
+	}
+	case 0x9000: // Skips next instruction if x does not equal y
+		if (m_Reg[x] != m_Reg[y])
+			m_ProgramCounter += 2;
+		break;
 	case 0xA000: // Sets index to the address NNN
 	{
-		m_Index = m_Opcode & 0x0FFF;
+		m_Index = nnn;
+		break;
+	}
+	case 0xB000: // Jumps to address of nnn + 0
+	{
+		m_ProgramCounter = m_Reg[0] + nnn;
+		break;
+	}
+	case 0xC000: // Set x to random number
+	{
+		m_Reg[x] = (rand() % 255) & (m_Opcode & 0x00FF);
 		break;
 	}
 	case 0xD000: // Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels. Each row of 8 pixels is read as bit-coded starting from memory location I; 
@@ -111,62 +268,98 @@ void Chip8Core::Cycle()
 
 		break;
 	}
-	case 0x0000:
-	{
-		// Opcodes share the same first 4 bytes so we add an additional switch statement
-		switch(m_Opcode & 0x000F)
+	case 0xE000:
+		switch (m_Opcode & 0x00FF)
 		{
-		case 0x0000: // Clears the screen
-			memset(m_Display, 0, static_cast<size_t>(64) * 32);
+		case 0x009E: // Skip next instruction if key in x is pressed
+		{
+			// TODO
 			break;
- 
-		case 0x000E: // Returns from subroutine  
-			m_ProgramCounter = m_Stack[m_StackPointer--];
-			break;
- 
-		default:
-			printf ("Unknown opcode [0x0000]: 0x%X\n", m_Opcode);
 		}
-	}
-	case 0x1000: // Jump to nnn address
-	{
-		m_ProgramCounter = nnn;
-		break;
-	}
-	case 0x2000: // Call subroutine at nnn. 
-	{
-		m_Stack[m_StackPointer++] = m_ProgramCounter;
-		m_ProgramCounter = nnn;
-		break;
-	}
-	case 0x4000:
-		if (m_Reg[x] == nn)
-			m_ProgramCounter += 2;
-	case 0x6000: // Set x to nn
-	{
-		m_Reg[x] = nn;
-		break;
-	}
-	case 0x9000:
-		if (m_Reg[x] == m_Reg[y])
-			m_ProgramCounter += 2;
+		case 0x00A1: // Skip next instruction if key in x not pressed
+		{
+			// TODO
+			break;
+		}
+		default:
+		{
+			printf("Unknown opcode [0xE000]: 0x%X\n", m_Opcode & 0x00FF);
+			break;
+		}
+		}
 		break;
 	case 0xF000:
 	{
-		switch (w)
+		switch (m_Opcode & 0x00FF)
 		{
-		case 15: // Set delay timer to vx
-			m_DelayTimer = m_Reg[x];
-			break;
-		default:
-			printf("Unknown opcode [0xF000]: 0x%X\n", m_Opcode);
+		case 0x000A: // Await keypress then store in x
+		{ 
+			m_ProgramCounter -= 2;
+			// TODO: Key press
 			break;
 		}
+		case 0x0007: // Set x to the value of the delay timer 
+		{
+			m_Reg[x] = m_DelayTimer;
+			break;
+		}
+		case 0x0015: // Set delay timer to vx
+		{
+			m_DelayTimer = m_Reg[x];
+			break;
+		}
+		case 0x0018: // Set sound timer to vx
+		{
+			m_SoundTimer = m_Reg[x];
+			break;
+		}
+		case 0x001E: // Add x to index
+		{
+			m_Index += m_Reg[x];
+			break;
+
+		}
+		case 0x0029: // Sets index to the location of sprite stored in x
+		{
+			m_Index = m_Reg[x] * 5;
+			break;
+		}
+		case 0x0033: // Stores the binary-coded decimal representation of x, with the hundreds digit in memory at index, the tens digit at index + 1, and the ones digit at location index +2.
+		{
+			// Hundreds 
+			m_Memory[m_Index] = m_Reg[x] / 100;
+			// Tens
+			m_Memory[m_Index + 1] = (m_Reg[x] / 10) % 10;
+			// Ones
+			m_Memory[m_Index + 2] = m_Reg[x] % 10;
+			break;
+		}
+		case 0x0055: // store 0-x in memory starting at index
+		{
+			for (int i = 0; i < x + 1; i++) {
+				m_Memory[m_Index + i] = m_Reg[i];
+			}
+			m_Index = m_Index + x + 1;
+			break;
+		}
+		case 0x0065: // Fill 0 to x with stored memory starting at index
+		{
+			for (int i = 0; i < x + 1; i++) {
+				m_Reg[i] = m_Memory[m_Index + i];
+			}
+			m_Index = m_Index + x + 1;
+			break;
+		}
+		default:
+			//printf("Unknown opcode [0xF000]: 0x%X\n", m_Opcode & 0x00FF);
+			break;
+		}
+		break;
 	}
-  break;
 	default:
 	{
 		printf("Unknown opcode: 0x%X\n", m_Opcode & 0xF000);
+		break;
 	}
 	}
 

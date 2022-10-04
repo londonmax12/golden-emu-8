@@ -2,6 +2,7 @@
 #define _CRT_SECURE_NO_WARNINGS 1 
 #define _WINSOCK_DEPRECATED_NO_WARNINGS 1 
 
+#include <unordered_map>
 
 class Chip8Core {
 public:
@@ -13,8 +14,8 @@ public:
 	void LoadProgram(const char* program);
 
 	bool IsRunning() { return m_Running; }
-	bool ShouldDraw() { return m_ShouldDraw; }
 
+	bool ShouldDraw() { return m_ShouldDraw; }
 	bool IsPixelActive(int x, int y);
 
 	// Chip8 has 4K memory
