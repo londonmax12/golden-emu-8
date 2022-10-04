@@ -1,8 +1,5 @@
 ﻿  application.cpp
-C:\Users\London\Desktop\Projects\C++\golden-emu-8\GoldenEmu\src\application.cpp(95,31): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-C:\Users\London\Desktop\Projects\C++\golden-emu-8\GoldenEmu\src\application.cpp(97,35): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-  chip8.cpp
-  main.cpp
-C:\Users\London\Desktop\Projects\C++\golden-emu-8\GoldenEmu\src\main.cpp(36,13): warning C4326: return type of 'main' should be 'int' instead of 'void'
-  Generating Code...
+C:\Users\London\Desktop\Projects\C++\golden-emu-8\GoldenEmu\src\application.cpp(111,41): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\London\Desktop\Projects\C++\golden-emu-8\GoldenEmu\src\application.cpp(140,27): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+C:\Users\London\Desktop\Projects\C++\golden-emu-8\GoldenEmu\src\application.cpp(142,31): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
   GoldenEmu.vcxproj -> C:\Users\London\Desktop\Projects\C++\golden-emu-8\x64\Debug\GoldenEmu.exe

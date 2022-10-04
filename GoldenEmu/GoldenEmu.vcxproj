@@ -112,7 +112,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)middleware\sdl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)middleware\sdl\include;$(ProjectDir)middleware\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -130,7 +130,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)middleware\sdl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)middleware\sdl\include;$(ProjectDir)middleware\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -143,15 +143,32 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="middleware\imgui\backends\imgui_impl_sdl.cpp" />
+    <ClCompile Include="middleware\imgui\backends\imgui_impl_sdlrenderer.cpp" />
+    <ClCompile Include="middleware\imgui\imgui.cpp" />
+    <ClCompile Include="middleware\imgui\imgui_demo.cpp" />
+    <ClCompile Include="middleware\imgui\imgui_draw.cpp" />
+    <ClCompile Include="middleware\imgui\imgui_tables.cpp" />
+    <ClCompile Include="middleware\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\application.cpp" />
     <ClCompile Include="src\chip8.cpp" />
     <ClCompile Include="src\input.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\util.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="middleware\imgui\backends\imgui_impl_sdl.h" />
+    <ClInclude Include="middleware\imgui\backends\imgui_impl_sdlrenderer.h" />
+    <ClInclude Include="middleware\imgui\imconfig.h" />
+    <ClInclude Include="middleware\imgui\imgui.h" />
+    <ClInclude Include="middleware\imgui\imgui_internal.h" />
+    <ClInclude Include="middleware\imgui\imstb_rectpack.h" />
+    <ClInclude Include="middleware\imgui\imstb_textedit.h" />
+    <ClInclude Include="middleware\imgui\imstb_truetype.h" />
     <ClInclude Include="src\application.h" />
     <ClInclude Include="src\chip8.h" />
     <ClInclude Include="src\input.h" />
+    <ClInclude Include="src\util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

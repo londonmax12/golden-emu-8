@@ -2,14 +2,17 @@
 #define _CRT_SECURE_NO_WARNINGS 1 
 #define _WINSOCK_DEPRECATED_NO_WARNINGS 1 
 
+#include <string>
+
 class Chip8Core {
 public:
 	bool Initialize();
+	void Reset();
 
 	void Cycle();
 	void SetKeys(unsigned char keys[16]);
 
-	void LoadProgram(const char* program);
+	void LoadProgram(std::string program);
 
 	bool ShouldDraw() { return m_ShouldDraw; }
 	bool ShouldPlaySound() { return m_Sound; }

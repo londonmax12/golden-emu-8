@@ -4,6 +4,7 @@
 #include <Windows.h>
 #include <chrono>
 #include <thread>
+#include <string>
 
 #include "application.h"
 
@@ -35,8 +36,6 @@ void debugGraphics() {
 
 void main() {
 	app.Initialize();
-
-	app.LoadChipProgram("Breakout.ch8");
 
 	using clock = std::chrono::steady_clock;
 

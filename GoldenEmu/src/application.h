@@ -6,6 +6,15 @@
 #include "SDL.h"
 #include "SDL_mixer.h"
 
+#include "imgui.h"
+#include "backends/imgui_impl_sdl.h"
+#include "backends/imgui_impl_sdlrenderer.h"
+
+#if !SDL_VERSION_ATLEAST(2,0,17)
+#error This backend requires SDL 2.0.17+ because of SDL_RenderGeometry() function
+#endif
+
+
 class Application {
 public:
 	bool Initialize();
@@ -16,9 +25,11 @@ public:
 	// Incase of window close or unrecoverable error
 	bool WantClose() { return m_ShouldClose; }
 
-	bool LoadChipProgram(const char* path);
+	bool LoadChipProgram(std::string path);
 
 	Chip8Core* GetEmulatedCPU() { return &m_ChipCpu; }
+
+	void Style();
 
 	~Application();
 private:

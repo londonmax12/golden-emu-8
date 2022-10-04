@@ -4,6 +4,14 @@
 #include <stdlib.h>
 
 #include <vector>
+#include <fstream>
+
+#include <iostream>
+#include <sstream>
+
+#include <array>
+#include <cinttypes>
+#include <string_view>
 
 constexpr unsigned char fontset[80] =
 {
@@ -27,6 +35,13 @@ constexpr unsigned char fontset[80] =
 
 bool Chip8Core::Initialize()
 {
+	Reset();
+
+	return true;
+}
+
+void Chip8Core::Reset()
+{
 	m_ProgramCounter = 0x200; // Program counter starts at 0x200
 
 	m_Opcode = 0x00;
@@ -42,7 +57,6 @@ bool Chip8Core::Initialize()
 	for (int i = 0; i < 80; ++i)
 		m_Memory[i] = fontset[i];
 
-	return true;
 }
 
 void Chip8Core::Cycle()
@@ -402,37 +416,29 @@ void Chip8Core::SetKeys(unsigned char keys[16])
 	memcpy(m_Key, keys, 16);
 }
 
-void Chip8Core::LoadProgram(const char* program)
+void Chip8Core::LoadProgram(std::string filepath)
 {
-	FILE* file;
-	int fileSize;
-
-	// open file stream in binary read-only mode
-	file = fopen(program, "rb");
-	if (file == NULL) 
-	{ 
-		printf("File unable to load.\n");
+	std::ifstream ifs(filepath, std::ios::binary | std::ios::ate);
+	if (!ifs) {
+		printf("Can't open file: %s", filepath, std::strerror(errno));
 	}
-	else {
-		// find file size and load program
-		fseek(file, 0, SEEK_END);
-		fileSize = ftell(file);
-		printf("Loaded ROM size: %d\n", fileSize);
-		rewind(file);
 
-		// Copy buffer to Chip8 memory
-		if ((4096 - 512) > fileSize)
-		{
-			// Read program into memory
-			fread(m_Memory + 512, 1, fileSize, file);
-		}
-		else {
-			printf("File is too large to load.\n");
-		}
-
-		// Close file
-		fclose(file);
+	auto end = ifs.tellg();
+	ifs.seekg(0, std::ios::beg);
+	auto size = std::size_t(end - ifs.tellg());
+	if (size == 0) {
+		printf("Specified ROM has a size of 0.");
 	}
+	else if (size > 4096 - 512) {
+		printf("ROM too big for memory");
+	}
+
+	std::vector<char> buffer((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+	for (long long unsigned int i = 0; i < size; i++) {
+		m_Memory[i + 512] = buffer[i];
+	}
+
+	ifs.close();
 }
 
 bool Chip8Core::IsPixelActive(int x, int y)
