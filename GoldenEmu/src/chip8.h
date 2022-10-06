@@ -16,7 +16,7 @@ public:
 
 	bool ShouldDraw() { return m_ShouldDraw; }
 	bool ShouldPlaySound() { return m_Sound; }
-	void PlaySound() { m_Sound = false; }
+	void CPlaySound() { m_Sound = false; }
 
 	bool IsPixelActive(int x, int y);
 

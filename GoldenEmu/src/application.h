@@ -10,6 +10,8 @@
 #include "backends/imgui_impl_sdl.h"
 #include "backends/imgui_impl_sdlrenderer.h"
 
+#include "settings.h"
+
 #if !SDL_VERSION_ATLEAST(2,0,17)
 #error This backend requires SDL 2.0.17+ because of SDL_RenderGeometry() function
 #endif
@@ -32,9 +34,18 @@ public:
 	void Style();
 
 	~Application();
+
+	// Settings struct
+	Settings m_Settings;
+
 private:
 	bool m_ShouldClose = false;
 	bool m_ForceRedraw = false;
+	bool m_SettingsOpen = false;
+
+	bool showSettingsPopup = false;
+
+	int m_SettingsSwitch = 0;
 
 	// Main window
 	SDL_Window* m_Window;
@@ -48,5 +59,6 @@ private:
 	// Beep sound
 	Mix_Chunk* m_BeepSfx;
 
+	// Main emulator
 	Chip8Core m_ChipCpu;
 };

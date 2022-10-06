@@ -1,10 +1,38 @@
 #include "application.h"
 #include "util.h"
+#include "ui.h"
+
 #include <iostream>
 #include <string>
+#include <Windows.h>
+#include <ShlObj.h>
+#include <filesystem>
+#include <fstream>
 
 bool Application::Initialize()
 {
+    // Get app data folder
+    {
+        PWSTR roamingFilePath;
+        HRESULT result = SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DEFAULT, NULL, &roamingFilePath);
+        if (result == S_OK)
+        {
+            char filepath[256];
+            wcstombs(filepath, roamingFilePath, 128);
+            std::string filepathStr = filepath;
+            std::replace(filepathStr.begin(), filepathStr.end(), L'\\', L'/');
+            filepathStr += "/GoldenEmu8";
+            m_Settings.Filepath = filepathStr + "/Settings.yaml";
+
+            if (!std::filesystem::exists(filepathStr))
+                std::filesystem::create_directories(filepathStr);
+        }
+    }
+    if (std::filesystem::exists(m_Settings.Filepath))
+    {
+        SettingsSerializer::Deserialize(m_Settings, m_Settings.Filepath);
+    }
+
     // Initalize SDL
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
 
@@ -13,6 +41,9 @@ bool Application::Initialize()
 
     // Load audio
     m_BeepSfx = Mix_LoadWAV("assets/audio/beep.wav");
+
+    // Set volume from settings
+    Mix_VolumeChunk(m_BeepSfx, m_Settings.Volume);
 
     // Create window with parameters
     m_Window = SDL_CreateWindow(
@@ -49,13 +80,14 @@ bool Application::Initialize()
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
 
-    ImGui::StyleColorsDark();
+    Style();
 
     // Setup Platform/Renderer backends
     ImGui_ImplSDL2_InitForSDLRenderer(m_Window, m_Renderer);
     ImGui_ImplSDLRenderer_Init(m_Renderer);
     
     io.FontDefault = io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Arial.ttf", 16.0f);
+
     return true;
 }
 
@@ -85,7 +117,8 @@ void Application::Update()
         } 
     } 
     // Emulate 1 CPU cycle
-    m_ChipCpu.Cycle();
+    if(!m_SettingsOpen)
+        m_ChipCpu.Cycle();
 
     Input::Update();
 
@@ -126,6 +159,7 @@ void Application::Update()
         if (ImGui::BeginMenu("Edit")) {
             if (ImGui::MenuItem("Settings"))
             {
+                showSettingsPopup = true;
             }
             ImGui::EndMenu();
         }
@@ -133,6 +167,53 @@ void Application::Update()
     }
 
     h = h - barSize;
+
+    if (showSettingsPopup)
+    {
+        ImGui::OpenPopup("Settings");
+        showSettingsPopup = false;
+    }
+
+    m_SettingsOpen = false;
+    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+    ImGui::SetNextWindowSize(ImVec2{ 700, 325 });
+    if (ImGui::BeginPopupModal("Settings", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoDecoration))
+    {
+        m_SettingsOpen = true;
+        if (ImGui::Button("General"))
+        {
+            m_SettingsSwitch = 0;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Advanced"))
+        {
+            m_SettingsSwitch = 1;
+        }
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(ImGui::GetWindowSize().x - 75);
+        if (ImGui::Button("Close", ImVec2(70.0f, 0.0f)))
+        {
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::Separator();
+
+        switch (m_SettingsSwitch)
+        {
+        case 0:
+            if (ImGui::UI::SliderIntAnimated("Beep Volume", &m_Settings.Volume, 0, 128, "%d"))
+                Mix_VolumeChunk(m_BeepSfx, m_Settings.Volume);
+            break;
+        case 1:
+            ImGui::UI::SliderIntAnimated("Clock Speed (Hz)", &m_Settings.RefreshRateHz, 1, 2000, "%dHz");
+            break;
+        default:
+            break;
+        }
+
+        ImGui::EndPopup();
+    }
 
     ImGui::Render();
 
@@ -161,7 +242,7 @@ void Application::Update()
     }
 
     if (m_ChipCpu.ShouldPlaySound()) {
-        m_ChipCpu.PlaySound();
+        m_ChipCpu.CPlaySound();
         Mix_PlayChannel(-1, m_BeepSfx, 0);
     }
 
@@ -186,6 +267,7 @@ void Application::Style()
 {
     auto& colors = ImGui::GetStyle().Colors;
     colors[ImGuiCol_WindowBg] = ImVec4{ 0.1f, 0.105f, 0.11f, 1.0f };
+    colors[ImGuiCol_ChildBg] = ImVec4{ 0.1f, 0.105f, 0.11f, 1.0f };
 
     // Headers
     colors[ImGuiCol_Header] = ImVec4{ 0.2f, 0.205f, 0.21f, 1.0f };
@@ -196,6 +278,9 @@ void Application::Style()
     colors[ImGuiCol_Button] = ImVec4{ 0.2f, 0.205f, 0.21f, 1.0f };
     colors[ImGuiCol_ButtonHovered] = ImVec4{ 0.3f, 0.305f, 0.31f, 1.0f };
     colors[ImGuiCol_ButtonActive] = ImVec4{ 0.3f, 0.305f, 0.31f, 1.0f };
+
+    colors[ImGuiCol_SliderGrab] = ImVec4{ 0.8f, 0.8f, 0.0f, 1.0f };
+    colors[ImGuiCol_SliderGrabActive] = ImVec4{ 0.9f, 0.9f, 0.0f, 1.0f };
 
     // Frame BG
     colors[ImGuiCol_FrameBg] = ImVec4{ 0.2f, 0.205f, 0.21f, 1.0f };
@@ -211,7 +296,7 @@ void Application::Style()
 
     // Title
     colors[ImGuiCol_TitleBg] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
-    colors[ImGuiCol_TitleBgActive] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
+    colors[ImGuiCol_TitleBgActive] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f }; 
     colors[ImGuiCol_TitleBgCollapsed] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
 }
 
@@ -229,4 +314,12 @@ Application::~Application()
     Mix_CloseAudio();
 
     SDL_Quit();
+
+    if (!std::filesystem::exists(m_Settings.Filepath))
+    {
+        std::ofstream file{ m_Settings.Filepath, std::ofstream::out };
+        file.close();
+    }
+
+    SettingsSerializer::Serialize(m_Settings, m_Settings.Filepath);
 }

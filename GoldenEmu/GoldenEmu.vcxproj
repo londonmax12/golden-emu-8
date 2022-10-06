@@ -112,7 +112,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)middleware\sdl\include;$(ProjectDir)middleware\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)middleware\sdl\include;$(ProjectDir)middleware\imgui;$(ProjectDir)middleware\yaml\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -130,7 +130,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)middleware\sdl\include;$(ProjectDir)middleware\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)middleware\sdl\include;$(ProjectDir)middleware\imgui;$(ProjectDir)middleware\yaml\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -150,10 +150,43 @@
     <ClCompile Include="middleware\imgui\imgui_draw.cpp" />
     <ClCompile Include="middleware\imgui\imgui_tables.cpp" />
     <ClCompile Include="middleware\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="middleware\yaml\src\binary.cpp" />
+    <ClCompile Include="middleware\yaml\src\contrib\graphbuilder.cpp" />
+    <ClCompile Include="middleware\yaml\src\contrib\graphbuilderadapter.cpp" />
+    <ClCompile Include="middleware\yaml\src\convert.cpp" />
+    <ClCompile Include="middleware\yaml\src\depthguard.cpp" />
+    <ClCompile Include="middleware\yaml\src\directives.cpp" />
+    <ClCompile Include="middleware\yaml\src\emit.cpp" />
+    <ClCompile Include="middleware\yaml\src\emitfromevents.cpp" />
+    <ClCompile Include="middleware\yaml\src\emitter.cpp" />
+    <ClCompile Include="middleware\yaml\src\emitterstate.cpp" />
+    <ClCompile Include="middleware\yaml\src\emitterutils.cpp" />
+    <ClCompile Include="middleware\yaml\src\exceptions.cpp" />
+    <ClCompile Include="middleware\yaml\src\exp.cpp" />
+    <ClCompile Include="middleware\yaml\src\memory.cpp" />
+    <ClCompile Include="middleware\yaml\src\node.cpp" />
+    <ClCompile Include="middleware\yaml\src\nodebuilder.cpp" />
+    <ClCompile Include="middleware\yaml\src\nodeevents.cpp" />
+    <ClCompile Include="middleware\yaml\src\node_data.cpp" />
+    <ClCompile Include="middleware\yaml\src\null.cpp" />
+    <ClCompile Include="middleware\yaml\src\ostream_wrapper.cpp" />
+    <ClCompile Include="middleware\yaml\src\parse.cpp" />
+    <ClCompile Include="middleware\yaml\src\parser.cpp" />
+    <ClCompile Include="middleware\yaml\src\regex_yaml.cpp" />
+    <ClCompile Include="middleware\yaml\src\scanner.cpp" />
+    <ClCompile Include="middleware\yaml\src\scanscalar.cpp" />
+    <ClCompile Include="middleware\yaml\src\scantag.cpp" />
+    <ClCompile Include="middleware\yaml\src\scantoken.cpp" />
+    <ClCompile Include="middleware\yaml\src\simplekey.cpp" />
+    <ClCompile Include="middleware\yaml\src\singledocparser.cpp" />
+    <ClCompile Include="middleware\yaml\src\stream.cpp" />
+    <ClCompile Include="middleware\yaml\src\tag.cpp" />
     <ClCompile Include="src\application.cpp" />
     <ClCompile Include="src\chip8.cpp" />
     <ClCompile Include="src\input.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\settings.cpp" />
+    <ClCompile Include="src\ui.cpp" />
     <ClCompile Include="src\util.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -165,9 +198,70 @@
     <ClInclude Include="middleware\imgui\imstb_rectpack.h" />
     <ClInclude Include="middleware\imgui\imstb_textedit.h" />
     <ClInclude Include="middleware\imgui\imstb_truetype.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\anchor.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\binary.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\contrib\anchordict.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\contrib\graphbuilder.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\depthguard.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\dll.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\emitfromevents.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\emitter.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\emitterdef.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\emittermanip.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\emitterstyle.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\eventhandler.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\exceptions.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\mark.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\node\convert.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\node\detail\impl.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\node\detail\iterator.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\node\detail\iterator_fwd.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\node\detail\memory.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\node\detail\node.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\node\detail\node_data.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\node\detail\node_iterator.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\node\detail\node_ref.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\node\emit.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\node\impl.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\node\iterator.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\node\node.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\node\parse.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\node\ptr.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\node\type.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\noexcept.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\null.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\ostream_wrapper.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\parser.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\stlemitter.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\traits.h" />
+    <ClInclude Include="middleware\yaml\include\yaml-cpp\yaml.h" />
+    <ClInclude Include="middleware\yaml\src\collectionstack.h" />
+    <ClInclude Include="middleware\yaml\src\contrib\graphbuilderadapter.h" />
+    <ClInclude Include="middleware\yaml\src\directives.h" />
+    <ClInclude Include="middleware\yaml\src\emitterstate.h" />
+    <ClInclude Include="middleware\yaml\src\emitterutils.h" />
+    <ClInclude Include="middleware\yaml\src\exp.h" />
+    <ClInclude Include="middleware\yaml\src\indentation.h" />
+    <ClInclude Include="middleware\yaml\src\nodebuilder.h" />
+    <ClInclude Include="middleware\yaml\src\nodeevents.h" />
+    <ClInclude Include="middleware\yaml\src\ptr_vector.h" />
+    <ClInclude Include="middleware\yaml\src\regeximpl.h" />
+    <ClInclude Include="middleware\yaml\src\regex_yaml.h" />
+    <ClInclude Include="middleware\yaml\src\scanner.h" />
+    <ClInclude Include="middleware\yaml\src\scanscalar.h" />
+    <ClInclude Include="middleware\yaml\src\scantag.h" />
+    <ClInclude Include="middleware\yaml\src\setting.h" />
+    <ClInclude Include="middleware\yaml\src\singledocparser.h" />
+    <ClInclude Include="middleware\yaml\src\stream.h" />
+    <ClInclude Include="middleware\yaml\src\streamcharsource.h" />
+    <ClInclude Include="middleware\yaml\src\stringsource.h" />
+    <ClInclude Include="middleware\yaml\src\tag.h" />
+    <ClInclude Include="middleware\yaml\src\token.h" />
     <ClInclude Include="src\application.h" />
     <ClInclude Include="src\chip8.h" />
     <ClInclude Include="src\input.h" />
+    <ClInclude Include="src\settings.h" />
+    <ClInclude Include="src\ui.h" />
     <ClInclude Include="src\util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
