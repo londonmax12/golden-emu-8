@@ -7,3 +7,9 @@
 *.ipch
 *.db
 *.vsidx
+
+.vs/
+*.db
+*.db-wal
+*.bin
+build/

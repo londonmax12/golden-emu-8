@@ -23,7 +23,7 @@ void debugGraphics() {
 			if (app.GetEmulatedCPU()->IsPixelActive(x, y)) {
 				pos.X = x;
 				pos.Y = y;
-				WriteConsoleOutputCharacter(hStdOut, L"█", 1, pos, &dw);
+				WriteConsoleOutputCharacterA(hStdOut, "█", 1, pos, &dw);
 			}
 			else {
 				pos.X = x;
