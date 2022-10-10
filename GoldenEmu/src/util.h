@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 namespace Util {
-	const char* GetUserInputFile();
+	std::string GetUserInputFile();
 }

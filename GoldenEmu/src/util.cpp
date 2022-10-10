@@ -2,7 +2,7 @@
 
 #include <Windows.h>
 
-const char* Util::GetUserInputFile()
+std::string Util::GetUserInputFile()
 {
     char szFileNameIN[MAX_PATH]{};
     char szFileNameOUT[MAX_PATH]{};

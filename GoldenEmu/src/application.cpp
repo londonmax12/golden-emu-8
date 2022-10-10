@@ -145,8 +145,8 @@ void Application::Update()
         if (ImGui::BeginMenu("File")) {
             if (ImGui::MenuItem("Open ROM"))
             {
-                const char* input = Util::GetUserInputFile();
-                if (input) {
+                std::string input = Util::GetUserInputFile();
+                if (!input.empty()) {
                     m_ChipCpu.Reset();
                     LoadChipProgram(input);
                 }

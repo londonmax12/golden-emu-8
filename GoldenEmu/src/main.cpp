@@ -43,6 +43,7 @@ void main() {
 
 	while (!app.WantClose())
 	{
+		nextFrame = clock::now();
 		nextFrame += std::chrono::milliseconds(1000 / app.m_Settings.RefreshRateHz);
 		app.Update();
 		std::this_thread::sleep_until(nextFrame);
